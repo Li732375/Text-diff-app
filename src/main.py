@@ -19,7 +19,7 @@ class LineNumberArea(QPlainTextEdit):
             font-family: 'Courier New', monospace;
             font-size: 16px;
         """)
-        # 移除滾動條
+        # 總是不顯示滾動條
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
@@ -76,11 +76,6 @@ class TextDiffApp(QWidget):
         self.leftTextEdit.verticalScrollBar().valueChanged.connect(self.syncScroll)
         self.rightTextEdit.verticalScrollBar().valueChanged.connect(self.syncScroll)
         self.lineNumberArea.verticalScrollBar().valueChanged.connect(self.syncScroll)
-
-        # **隱藏滾動條（但保持同步）**
-        self.leftTextEdit.verticalScrollBar().setVisible(False)
-        self.rightTextEdit.verticalScrollBar().setVisible(False)
-        self.lineNumberArea.verticalScrollBar().setVisible(False)
 
         self.diffTabLayout.addWidget(self.leftTextEdit)
         self.diffTabLayout.addWidget(self.lineNumberArea)
