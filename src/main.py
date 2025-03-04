@@ -1,7 +1,8 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTextEdit, QPushButton, QLabel, QTabWidget, QHBoxLayout, QScrollArea, QPlainTextEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTextEdit, QPushButton, QTabWidget, QHBoxLayout, QPlainTextEdit
 from PyQt5.QtGui import QTextCursor, QColor, QTextCharFormat
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QTextOption
 from difflib import Differ
 
 
@@ -11,15 +12,16 @@ class LineNumberArea(QPlainTextEdit):
         self.editor = editor
         self.setReadOnly(True)
         self.setFixedWidth(68)  # 設定行號區域的寬度
-        
+        self.setWordWrapMode(QTextOption.NoWrap) 
         self.setStyleSheet("""
             background-color: #e0e0e0; 
             border: none; 
-            font-family: 'Courier New', monospace;  /* 設定等寬字型 */
+            font-family: 'Courier New', monospace;
             font-size: 16px;
-            text-align: center;
         """)
-        self.verticalScrollBar().setStyleSheet("QScrollBar { width: 0px; }")  # 隱藏行號區域的滾動條
+        # 移除滾動條
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def updateLineNumbers(self, line_numbers):
         self.setPlainText('\n'.join(line_numbers))
@@ -35,7 +37,6 @@ class TextDiffApp(QWidget):
         self.resize(800, 600)
 
         self.layout = QVBoxLayout()
-
         self.tabWidget = QTabWidget(self)
         self.layout.addWidget(self.tabWidget)
 
@@ -58,38 +59,43 @@ class TextDiffApp(QWidget):
         self.inputTab.setLayout(self.inputTabLayout)
         self.tabWidget.addTab(self.inputTab, "Input")
 
-        # Diff Line Result-Tab
+        # Diff Tab
         self.diffTab = QWidget()
         self.diffTabLayout = QHBoxLayout()
 
-        # 行號區域
-        self.lineNumberArea = LineNumberArea(self)
         self.leftTextEdit = QTextEdit()
         self.leftTextEdit.setReadOnly(True)
         self.leftTextEdit.setLineWrapMode(QTextEdit.NoWrap)
 
+        self.lineNumberArea = LineNumberArea(self)
         self.rightTextEdit = QTextEdit()
         self.rightTextEdit.setReadOnly(True)
         self.rightTextEdit.setLineWrapMode(QTextEdit.NoWrap)
 
-        # 設定滾動區域
-        self.leftScrollArea = QScrollArea()
-        self.leftScrollArea.setWidget(self.leftTextEdit)
-        self.leftScrollArea.setWidgetResizable(True)
+        # **同步滾動**
+        self.leftTextEdit.verticalScrollBar().valueChanged.connect(self.syncScroll)
+        self.rightTextEdit.verticalScrollBar().valueChanged.connect(self.syncScroll)
+        self.lineNumberArea.verticalScrollBar().valueChanged.connect(self.syncScroll)
 
-        self.rightScrollArea = QScrollArea()
-        self.rightScrollArea.setWidget(self.rightTextEdit)
-        self.rightScrollArea.setWidgetResizable(True)
+        # **隱藏滾動條（但保持同步）**
+        self.leftTextEdit.verticalScrollBar().setVisible(False)
+        self.rightTextEdit.verticalScrollBar().setVisible(False)
+        self.lineNumberArea.verticalScrollBar().setVisible(False)
 
-        
-        self.diffTabLayout.addWidget(self.leftScrollArea)
+        self.diffTabLayout.addWidget(self.leftTextEdit)
         self.diffTabLayout.addWidget(self.lineNumberArea)
-        self.diffTabLayout.addWidget(self.rightScrollArea)
+        self.diffTabLayout.addWidget(self.rightTextEdit)
 
         self.diffTab.setLayout(self.diffTabLayout)
         self.tabWidget.addTab(self.diffTab, "Diff Line Result")
 
         self.setLayout(self.layout)
+
+    def syncScroll(self, value):
+        """同步滾動條"""
+        self.leftTextEdit.verticalScrollBar().setValue(value)
+        self.rightTextEdit.verticalScrollBar().setValue(value)
+        self.lineNumberArea.verticalScrollBar().setValue(value)
 
     def compareTexts(self):
         text1 = self.textEdit1.toPlainText()
@@ -137,24 +143,19 @@ class TextDiffApp(QWidget):
 
         combinedLineNumbers = []
         for leftLineNumber, rightLineNumber in zip(leftLineNumbers, rightLineNumbers):
+            if leftLineNumber == '':
+                leftLineNumber = f'{" ":{maxLineNumberLength}s}'
+            else:
+                leftLineNumber = f"{leftLineNumber:<{maxLineNumberLength}s}"
 
-            if len(leftLineNumber) < maxLineNumberLength:
-                if leftLineNumber == '' :
-                    leftLineNumber = f'{" ":<{maxLineNumberLength}s}'
-                else:
-                    leftLineNumber = f"{leftLineNumber:<{maxLineNumberLength}s}"
-            
-            if len(rightLineNumber) < maxLineNumberLength:
-                if rightLineNumber == '' :
-                    rightLineNumber = f'{" ":>{maxLineNumberLength}s}'
-                else:
-                    rightLineNumber = f"{rightLineNumber:>{maxLineNumberLength}s}"
-            
-            LineNumber = f"{leftLineNumber}  {rightLineNumber}"
-            combinedLineNumbers.append(f"{LineNumber:^}")        
+            if rightLineNumber == '':
+                rightLineNumber = f'{" ":{maxLineNumberLength}s}'
+            else:
+                rightLineNumber = f"{rightLineNumber:>{maxLineNumberLength}s}"
+
+            combinedLineNumbers.append(f"{leftLineNumber}  {rightLineNumber}")
 
         self.lineNumberArea.updateLineNumbers(combinedLineNumbers)
-
         self.highlightDifferences(self.leftTextEdit, self.rightTextEdit)
 
         # 切換到 Diff 結果頁面
