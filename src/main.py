@@ -77,8 +77,9 @@ class TextDiffApp(QWidget):
 
         # 行號標示
         self.line_number = QLabel()
-        self.line_number.setFixedWidth(66)
+        self.line_number.setFixedWidth(64)
         self.line_number.setFont(QFont("Consolas", 10))
+        self.line_number.setContentsMargins(0, 5, 0, 0)  # 設邊距(左上右下) 5 像素
         self.line_number.setStyleSheet("border: 0.5px solid black;")  # 設置邊框樣式
 
         # 右側程式碼
@@ -146,7 +147,7 @@ class TextDiffApp(QWidget):
                 rightLineNumber += 1
             elif line.startswith('? '):  # 這是 `Differ` 的標記行，不需處理
                 continue
-
+        
         #leftText.append('')
         #rightText.append('')
         
@@ -173,10 +174,8 @@ class TextDiffApp(QWidget):
 
             combinedLineNumbers.append(f"{leftLineNumber}  {rightLineNumber}")
 
-        #combinedLineNumbers.append('')
-        #combinedLineNumbers.append('')
+        #combinedLineNumbers.extend(['' for _ in range(2)])
         print('combinedLineNumbers len: ', len(combinedLineNumbers))
-        print('combinedLineNumbers : ', combinedLineNumbers)
 
         self.line_number.setText('\n'.join(combinedLineNumbers))
 
@@ -200,8 +199,12 @@ class TextDiffApp(QWidget):
             line2 = cursor2.selectedText() if cursor2.hasSelection() else ""
 
             if line1 != line2:
-                cursor1.setCharFormat(self.getHighlightFormat(QColor('#FFC9C9')))
-                cursor2.setCharFormat(self.getHighlightFormat(QColor('#C9FFC9')))
+                format1, format2 = QTextCharFormat(), QTextCharFormat()
+                format1.setBackground(QColor('#FFC9C9'))
+                format2.setBackground(QColor('#C9FFC9'))
+
+                cursor1.setCharFormat(format1)
+                cursor2.setCharFormat(format2)
 
             cursor1.movePosition(QTextCursor.Down)
             cursor2.movePosition(QTextCursor.Down)
