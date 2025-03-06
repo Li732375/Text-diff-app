@@ -147,8 +147,8 @@ class TextDiffApp(QWidget):
             elif line.startswith('? '):  # 這是 `Differ` 的標記行，不需處理
                 continue
 
-        leftText.append('')
-        rightText.append('')
+        #leftText.append('')
+        #rightText.append('')
         
         print('leftText len: ', len(leftText))
         print('rightText len: ', len(rightText))
@@ -173,9 +173,10 @@ class TextDiffApp(QWidget):
 
             combinedLineNumbers.append(f"{leftLineNumber}  {rightLineNumber}")
 
-        combinedLineNumbers.append('')
-        combinedLineNumbers.append('')
+        #combinedLineNumbers.append('')
+        #combinedLineNumbers.append('')
         print('combinedLineNumbers len: ', len(combinedLineNumbers))
+        print('combinedLineNumbers : ', combinedLineNumbers)
 
         self.line_number.setText('\n'.join(combinedLineNumbers))
 
@@ -204,12 +205,6 @@ class TextDiffApp(QWidget):
 
             cursor1.movePosition(QTextCursor.Down)
             cursor2.movePosition(QTextCursor.Down)
-
-    def getHighlightFormat(self, color):
-        fmt = QTextCharFormat()
-        fmt.setBackground(color)
-        return fmt
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
