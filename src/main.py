@@ -1,23 +1,29 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTextEdit, QPushButton, QTabWidget, QHBoxLayout, QPlainTextEdit, QScrollArea
-from PyQt5.QtGui import QTextCursor, QColor, QTextCharFormat, QFont
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTextEdit, QPushButton, QTabWidget, QHBoxLayout, QPlainTextEdit, QScrollArea, QSizePolicy
+from PyQt5.QtGui import QTextCursor, QColor, QTextCharFormat, QFont, QTextOption
 from PyQt5.QtCore import Qt
 from difflib import Differ
 
 class TextDiffApp(QWidget):
     def __init__(self):
         super().__init__()
-        self.initUI()
-
-    def initUI(self):
+        
         self.setWindowTitle('Text Diff Checker')
         self.resize(800, 600)
 
-        layout = QVBoxLayout(self)
-        self.tabWidget = QTabWidget()
+        mainlayout = QVBoxLayout(self) # 主佈局
+        self.tabWidget = QTabWidget() # 分頁組
+        self.initUI_Tab1()
+        self.initUI_Tab2()
+        self.tabWidget.setTabEnabled(1, False)  # 預設隱藏 Diff Tab
 
+        mainlayout.addWidget(self.tabWidget)
+        self.setLayout(mainlayout)
+
+    def initUI_Tab1(self):
         # Input Tab
         self.inputTab = QWidget()
+
         inputTabLayout = QVBoxLayout(self.inputTab)
 
         self.textEdit1 = QTextEdit()
@@ -34,32 +40,16 @@ class TextDiffApp(QWidget):
         inputTabLayout.addWidget(self.textEdit1)
         inputTabLayout.addWidget(self.textEdit2)
         inputTabLayout.addWidget(self.compareButton)
+
         self.tabWidget.addTab(self.inputTab, "Input")
 
+    def initUI_Tab2(self):
         # Diff Tab
-        self.diffTab = QWidget()
-        diffTabLayout = QVBoxLayout(self.diffTab)
-        self.tabWidget.addTab(self.diffTab, "Diff Line Result")
-        self.tabWidget.setTabEnabled(1, False)  # 預設隱藏 Diff Tab
-
-        self.scrollArea = QScrollArea()
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-
-        self.diffContainer = QWidget()
-        self.diffLayout = QHBoxLayout(self.diffContainer)
-
         self.leftTextEdit = QPlainTextEdit()
         self.leftTextEdit.setReadOnly(True)
         self.leftTextEdit.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.leftTextEdit.setFont(QFont("Courier New", 10))
         self.leftTextEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-        self.lineNumberArea = QPlainTextEdit()
-        self.lineNumberArea.setReadOnly(True)
-        self.lineNumberArea.setFont(QFont("Courier New", 10))
-        self.lineNumberArea.setStyleSheet("background-color: #e0e0e0;")
-        self.lineNumberArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.rightTextEdit = QPlainTextEdit()
         self.rightTextEdit.setReadOnly(True)
@@ -67,15 +57,42 @@ class TextDiffApp(QWidget):
         self.rightTextEdit.setFont(QFont("Courier New", 10))
         self.rightTextEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        self.diffLayout.addWidget(self.leftTextEdit)
-        self.diffLayout.addWidget(self.lineNumberArea)
-        self.diffLayout.addWidget(self.rightTextEdit)
+        self.lineNumberArea = QPlainTextEdit()
+        self.lineNumberArea.setReadOnly(True)
+        self.lineNumberArea.setFont(QFont("Courier New", 10))
+        self.lineNumberArea.setStyleSheet("background-color: #e0e0e0;")
+        self.lineNumberArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.lineNumberArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        self.diffContainer.setLayout(self.diffLayout)
-        self.scrollArea.setWidget(self.diffContainer)
-        diffTabLayout.addWidget(self.scrollArea)
+        # 行號區域填充區
+        self.lineNumberSpacer = QWidget()
+        self.lineNumberSpacer.setFixedHeight(0)  # 初始高度設為 0
+        self.lineNumberSpacer.setStyleSheet("background-color: #e0CCe0;")
+        self.lineNumberSpacer.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
 
-        layout.addWidget(self.tabWidget)
+        # 建立行號區域的垂直佈局
+        self.lineNumberVLayout = QVBoxLayout()
+        # 加入行號區域
+        self.lineNumberVLayout.addWidget(self.lineNumberArea)
+        self.lineNumberVLayout.addWidget(self.lineNumberSpacer)
+
+        # 建立垂直佈局
+        self.diffHLayout = QHBoxLayout()
+        # 加入水平佈局
+        self.diffHLayout.addWidget(self.leftTextEdit)
+        self.diffHLayout.addLayout(self.lineNumberVLayout)
+        self.diffHLayout.addWidget(self.rightTextEdit)
+
+        # 建立捲動區
+        self.scrollArea = QScrollArea()
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scrollArea.setAlignment(Qt.AlignTop)
+        # 加入捲動區
+        self.scrollArea.setLayout(self.diffHLayout)
+        
+        # 加入 tab 頁
+        self.tabWidget.addTab(self.scrollArea, "Diff Line Result")
 
     def compareTexts(self):
         text1, text2 = self.textEdit1.toPlainText(), self.textEdit2.toPlainText()
@@ -128,30 +145,42 @@ class TextDiffApp(QWidget):
         # 找出最大數值的字元寬度
         maxWidth = max(map(len, leftLineNumbers + rightLineNumbers), default = 1)
 
-        # 動態調整字元寬度
+        # 動態調整行號區域寬度
         self.lineNumberArea.setFixedWidth(50 + ((maxWidth - 1) * 20))
+        self.lineNumberSpacer.setFixedWidth(50 + ((maxWidth - 1) * 20))
         
         # 產生行號內容
         combinedLineNumbers = [
             f"{left:<{maxWidth}s}  {right:>{maxWidth}s}"
             for left, right in zip(leftLineNumbers, rightLineNumbers)
         ]
+
         self.lineNumberArea.setPlainText('\n'.join(combinedLineNumbers))
 
         # 自動調整高度
         numLines = max(len(leftText), len(rightText))
         lineHeight = 20  # 依據字型調整
-        newHeight = (numLines + 3) * lineHeight
-        self.leftTextEdit.setFixedHeight(newHeight)
-        self.rightTextEdit.setFixedHeight(newHeight)
+        Height = (numLines + 3) * lineHeight
+        self.leftTextEdit.setFixedHeight(Height)
+        self.rightTextEdit.setFixedHeight(Height)
+        print('TextEdit Height: ', Height)
 
-        lineHeight = 22  # 依據字型調整
-        newHeight = (numLines - 2) * lineHeight + 0
-        self.lineNumberArea.setFixedHeight(newHeight - 0)
-        
-        # 顯示 Diff Tab
+        lineHeight = 20  # 依據字型調整
+        Height = (numLines + 1) * lineHeight
+        self.lineNumberArea.setFixedHeight(Height)
+
+        """ fontMetrics = self.leftTextEdit.fontMetrics()
+        lineHeight = fontMetrics.lineSpacing()  # 取得適當的行高
+        Height = numLines * lineHeight
+        self.lineNumberArea.setFixedHeight(Height) """
+        print('lineNumberArea Height: ', Height)
+        print('combinedLineNumbers: ', combinedLineNumbers)
+
+        # 設定填充區，使總高度與 leftTextEdit 對齊
+        #self.lineNumberSpacer.setFixedHeight(self.leftTextEdit.height() - Height - 10)
+
         self.tabWidget.setTabEnabled(1, True)
-        self.tabWidget.setCurrentWidget(self.diffTab)
+        self.tabWidget.setCurrentWidget(self.scrollArea)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
