@@ -93,16 +93,27 @@ class TextDiffApp(QWidget):
         text1, text2 = self.textEdit_Up.toPlainText(), self.textEdit_Down.toPlainText()
         differ = Differ()
         diff = list(differ.compare(text1.splitlines(), text2.splitlines()))
+        print(diff)
 
         leftText, rightText = [], []
 
         for line in diff:
             if line.startswith('- '):
-                leftText.append(line[2:])
+                if len(line) == 2:
+                    leftText.append(' ')
+                else:
+                    leftText.append(line[2:])
+
                 rightText.append('')
+
             elif line.startswith('+ '):
                 leftText.append('')
-                rightText.append(line[2:])
+
+                if len(line) == 2:
+                    rightText.append(' ')
+                else:
+                    rightText.append(line[2:])
+                    
             elif line.startswith('  '):
                 leftText.append(line[2:])
                 rightText.append(line[2:])
