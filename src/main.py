@@ -16,16 +16,14 @@ class TextDiffApp(QWidget):
         self.initUI_Tab1()
         self.initUI_Tab2()
         self.tabWidget.setTabEnabled(1, False)  # 預設隱藏 Diff Tab
+        self.initUI_Tab3()
+        self.tabWidget.setTabEnabled(2, False)  # 預設隱藏 Diff Tab
 
         mainlayout.addWidget(self.tabWidget)
         self.setLayout(mainlayout)
 
     def initUI_Tab1(self):
         # Input Tab
-        self.inputTab = QWidget()
-
-        inputTabLayout = QVBoxLayout(self.inputTab)
-
         self.textEdit1 = QTextEdit()
         self.textEdit1.setPlaceholderText("Enter first text here...")
         self.textEdit1.setStyleSheet("font-size: 16px;")
@@ -37,6 +35,9 @@ class TextDiffApp(QWidget):
         self.compareButton = QPushButton('Compare')
         self.compareButton.clicked.connect(self.compareTexts)
 
+        self.inputTab = QWidget()
+
+        inputTabLayout = QVBoxLayout(self.inputTab)
         inputTabLayout.addWidget(self.textEdit1)
         inputTabLayout.addWidget(self.textEdit2)
         inputTabLayout.addWidget(self.compareButton)
@@ -45,7 +46,7 @@ class TextDiffApp(QWidget):
         self.tabWidget.setTabToolTip(self.tabWidget.indexOf(self.inputTab), "輸入要比較的文字")
 
     def initUI_Tab2(self):
-        # Diff Tab
+        # Diff Line Tab
         self.leftTextEdit = QPlainTextEdit()
         self.leftTextEdit.setReadOnly(True)
         self.leftTextEdit.setLineWrapMode(QPlainTextEdit.NoWrap)
@@ -76,6 +77,14 @@ class TextDiffApp(QWidget):
         "\nShfit + 滾輪：兩邊垂直卷軸" +
         "\nCtrl + 滾輪：內容縮放" +
         "\nAlt + 滾輪：水平卷軸 ")
+
+    def initUI_Tab3(self):
+        # Diff Word Tab
+        
+        
+        # 加入 tab 頁
+        self.tabWidget.addTab(self.diffWidget, "Diff Word Result")
+        self.tabWidget.setTabToolTip(self.tabWidget.indexOf(self.diffWidget), "詞比對結果")
 
     def compareTexts(self):
         text1, text2 = self.textEdit1.toPlainText(), self.textEdit2.toPlainText()
