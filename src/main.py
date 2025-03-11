@@ -1,6 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTextEdit, QPushButton, QTabWidget, QHBoxLayout, QPlainTextEdit, QScrollArea, QSizePolicy
-from PyQt5.QtGui import QTextCursor, QColor, QTextCharFormat, QFont, QTextOption
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTextEdit, QPushButton, QTabWidget, QHBoxLayout, QPlainTextEdit
+from PyQt5.QtGui import QTextCursor, QColor, QTextCharFormat, QFont
 from PyQt5.QtCore import Qt
 from difflib import Differ
 
@@ -73,8 +73,9 @@ class TextDiffApp(QWidget):
         self.tabWidget.addTab(self.diffWidget, "Diff Line Result")
         self.tabWidget.setTabToolTip(self.tabWidget.indexOf(self.diffWidget), "行比對結果，" + 
         "\n滾輪：垂直卷軸 " +
-        "\nAlt + 滾輪：水平卷軸 " +
-        "\nShfit + 滾輪：兩邊垂直卷軸")
+        "\nShfit + 滾輪：兩邊垂直卷軸" +
+        "\nCtrl + 滾輪：內容縮放" +
+        "\nAlt + 滾輪：水平卷軸 ")
 
     def compareTexts(self):
         text1, text2 = self.textEdit1.toPlainText(), self.textEdit2.toPlainText()
