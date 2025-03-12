@@ -16,8 +16,6 @@ class TextDiffApp(QWidget):
         self.initUI_Tab1()
         self.initUI_Tab2()
         self.tabWidget.setTabEnabled(1, False)  # 預設隱藏 Diff Tab
-        """ self.initUI_Tab3()
-        self.tabWidget.setTabEnabled(2, False)  # 預設隱藏 Diff Tab """
 
         mainlayout.addWidget(self.tabWidget)
         self.setLayout(mainlayout)
@@ -81,63 +79,90 @@ class TextDiffApp(QWidget):
 
         self.tabWidget.setTabToolTip(self.tabWidget.indexOf(self.widget_DiffLineTab), tabTip)
 
-    """ def initUI_Tab3(self):
-        # Diff Word Tab
-        
-        
-        # 加入 tab 頁
-        self.tabWidget.addTab(, "Diff Word Result")
-        self.tabWidget.setTabToolTip(self.tabWidget.indexOf(self.widget_DiffLineTab), "詞比對結果") """
-
     def compareTexts(self):
         text1, text2 = self.textEdit_Up.toPlainText(), self.textEdit_Down.toPlainText()
         differ = Differ()
         diff = list(differ.compare(text1.splitlines(), text2.splitlines()))
-        print(diff)
-
+        
         leftText, rightText = [], []
+        diffTextpart = []
+        prelinesign = ''
 
         for line in diff:
             if line.startswith('- '):
+                prelinesign = line[0]
+
                 if len(line) == 2:
-                    leftText.append(' ')
+                    leftText.append(' ' * 2)
                 else:
                     leftText.append(line[2:])
 
                 rightText.append('')
-
+                diffTextpart.append([0, 0])
             elif line.startswith('+ '):
+                prelinesign = line[0]
                 leftText.append('')
 
                 if len(line) == 2:
-                    rightText.append(' ')
+                    rightText.append(' ' * 2)
                 else:
                     rightText.append(line[2:])
-                    
+
+                diffTextpart.append([0, 0])
             elif line.startswith('  '):
+                prelinesign = ''
                 leftText.append(line[2:])
                 rightText.append(line[2:])
+                diffTextpart.append([0, 0])
+            elif line.startswith('? '):
+                if prelinesign == '-':
+                    diffTextpart[-1][0] = line[2:].find(prelinesign)
+                    diffTextpart[-1][1] = line[2:].rfind(prelinesign)
+                elif prelinesign == '+':
+                    diffTextpart[-1][0] = line[2:].find(prelinesign)
+                    diffTextpart[-1][1] = line[2:].rfind(prelinesign)
+
+                prelinesign = ''
 
         self.pTextEdit_Left.setPlainText('\n'.join(leftText))
         self.pTextEdit_Right.setPlainText('\n'.join(rightText))
-
+        
         # 差異行色彩強調
         cursor1, cursor2 = self.pTextEdit_Left.textCursor(), self.pTextEdit_Right.textCursor()
         cursor1.movePosition(QTextCursor.Start)
         cursor2.movePosition(QTextCursor.Start)
 
-        while not cursor1.atEnd() and not cursor2.atEnd():
+        for line1, line2, diffpos in zip(leftText, rightText, diffTextpart):
             cursor1.movePosition(QTextCursor.StartOfBlock)
             cursor2.movePosition(QTextCursor.StartOfBlock)
             cursor1.select(QTextCursor.BlockUnderCursor)
             cursor2.select(QTextCursor.BlockUnderCursor)
 
-            if cursor1.selectedText() != cursor2.selectedText():
+            if line1 != line2:
                 format1, format2 = QTextCharFormat(), QTextCharFormat()
-                format1.setBackground(QColor('#FFC9C9'))
-                format2.setBackground(QColor('#C9FFC9'))
+                format1.setBackground(QColor('#FFDEDE'))  # 紅色背景（整行）
+                format2.setBackground(QColor('#C9FFC9'))  # 綠色背景（整行）
                 cursor1.mergeCharFormat(format1)
                 cursor2.mergeCharFormat(format2)
+
+            # 變更差異字段背景色
+            if diffpos != [0, 0]:
+                for pos in range(diffpos[0], diffpos[1] + 1):
+                    highlight = QTextCharFormat()
+                    
+                    if line1:
+                        cursor1.setPosition(cursor1.block().position() + pos)
+                        cursor1.movePosition(QTextCursor.NextCharacter, QTextCursor.KeepAnchor)
+                        highlight.setBackground(QColor('#FFABAB'))  # 左區字段背景色
+                        highlight.setFontWeight(QFont.Bold)  # 粗體
+                        cursor1.mergeCharFormat(highlight)
+                    else:
+                        cursor2.setPosition(cursor2.block().position() + pos)
+                        cursor2.movePosition(QTextCursor.NextCharacter, QTextCursor.KeepAnchor)
+                        highlight = QTextCharFormat()
+                        highlight.setBackground(QColor('#59FF59'))  # 右區字段背景色
+                        highlight.setFontWeight(QFont.Bold)  # 粗體
+                        cursor2.mergeCharFormat(highlight)
 
             cursor1.movePosition(QTextCursor.NextBlock)
             cursor2.movePosition(QTextCursor.NextBlock)
