@@ -1,30 +1,36 @@
-# text-diff-app/text-diff-app/README.md
+# Text Diff Checker
 
-# Text Diff App
+這是一個簡單的文字比對應用程式，讓使用者能夠比較兩段文字，並顯示它們的差異。這個應用程式使用 PyQt5 開發，並透過 `difflib.Differ` 顯示每行的差異。
 
-This is a simple PyQt5 application that allows users to input two pieces of text and compare their differences using the `difflib` library. The application provides a user-friendly interface to visualize the differences between the two texts.
+## 功能介紹
 
-## Features
+- **Input Tab**: 在兩個文字框中分別輸入要比較的文字。
+- **Diff Line Result Tab**: 顯示比較結果，並以紅色和綠色背景標示兩個文本的差異。
 
-- Input two pieces of text for comparison.
-- View differences highlighted in a web view.
-- Easy-to-use interface.
+- 支援鍵盤操作：
+  - 滾輪：控制垂直滾動。
+  - Shift + 滾輪：同步左右兩側的垂直滾動。
+  - Ctrl + 滾輪：縮放內容大小。
+  - Alt + 滾輪：控制水平滾動。
 
-## Requirements
+## 使用方法
 
-- Python 3.x
-- PyQt5
-- difflib (included in Python standard library)
+1. 開啟程式後，進入 **Input Tab** 分頁。
+2. 在兩個文字框中分別輸入要比較的兩段文字。
+3. 按下 **Compare** 按鈕，自動切換到另一分頁，顯示兩段文字的差異。
+4. 比對結果會顯示在 **Diff Line Result** 分頁，會用顏色與粗體顯示差異部分。
 
 ## License
 
 因 PyQt5 採用 GPL (GNU，General Public License) v3 或 商業許可證。表示：
 
 - 免費使用（GPLv3）
-你可以免費使用 PyQt5 進行開發，但你的應用程式也 必須 採用 GPLv3（即開源）。
-如果你的應用程式不是開源的，那就 不能免費使用 PyQt5。
+你可以免費使用 PyQt5 進行開發，但你的應用程式也 **必須** 採用 GPLv3（即開源）。
+如果你的應用程式不是開源的，那就 **不能免費使用** PyQt5。
 - 商業授權
 如果你要開發 封閉源碼（商業）應用程式，你需要購買 Riverbank Computing 提供的商業許可證。
-- PyQt5 與 Qt 的區別
-  - Qt 本身 提供 LGPL 授權（允許封閉源碼使用）。
-  - PyQt5 只提供 GPL 或商業許可證，因此 無法免費用於封閉源碼專案。
+
+
+### PyQt5 與 Qt 的區別
+- Qt 本身 提供 LGPL 授權（允許封閉源碼使用）。
+- PyQt5 只提供 GPL 或商業許可證，因此 **無法免費用於封閉源碼專案**。
