@@ -25,7 +25,22 @@ This is a simple PyQt5 application that allows users to input two pieces of text
    cd text-diff-app
    ```
 
+<<<<<<< HEAD
+因 PyQt5 採用 GPL (GNU，General Public License) v3 或 商業許可證。表示：
+
+- 免費使用（GPLv3）
+你可以免費使用 PyQt5 進行開發，但你的應用程式也 必須 採用 GPLv3（即開源）。
+如果你的應用程式不是開源的，那就 不能免費使用 PyQt5。
+- 商業授權
+如果你要開發 封閉源碼（商業）應用程式，你需要購買 Riverbank Computing 提供的商業許可證。
+- PyQt5 與 Qt 的區別
+  - Qt 本身 提供 LGPL 授權（允許封閉源碼使用）。
+  - PyQt5 只提供 GPL 或商業許可證，因此 無法免費用於封閉源碼專案。
+
+因此本專案採用 GNU GPL 授權條款。
+=======
 2. Install the required dependencies:
+>>>>>>> parent of 707e21c (釋出該軟體首個版本)
 
    ```
    pip install -r requirements.txt
