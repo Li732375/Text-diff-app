@@ -20,6 +20,12 @@ class TextDiffApp(QWidget):
 
         mainlayout = QVBoxLayout(self) # 主佈局
         self.tabWidget = QTabWidget() # 分頁組
+
+        font = QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.tabWidget.tabBar().setFont(font)
+
         self.initUI_Tab1()
         self.initUI_Tab2()
         self.tabWidget.setTabEnabled(1, False)  # 預設隱藏 Diff Tab
@@ -31,13 +37,14 @@ class TextDiffApp(QWidget):
         # Input Tab
         self.textEdit_Up = PlainTextPasteEdit()
         self.textEdit_Up.setPlaceholderText("Enter first text here...")
-        self.textEdit_Up.setStyleSheet("font-size: 16px;")
+        self.textEdit_Up.setStyleSheet("font-size: 18px;")
 
         self.textEdit_Down = PlainTextPasteEdit()
         self.textEdit_Down.setPlaceholderText("Enter second text here...")
-        self.textEdit_Down.setStyleSheet("font-size: 16px;")
+        self.textEdit_Down.setStyleSheet("font-size: 18px;")
 
         self.compareButton = QPushButton('Compare')
+        self.compareButton.setStyleSheet("font-size: 18px; font-weight: bold;")
         self.compareButton.clicked.connect(self.compareTexts)
 
         self.widget_InputTab = QWidget()
@@ -55,14 +62,14 @@ class TextDiffApp(QWidget):
         self.pTextEdit_Left = QPlainTextEdit()
         self.pTextEdit_Left.setReadOnly(True)
         self.pTextEdit_Left.setLineWrapMode(QPlainTextEdit.NoWrap)
-        self.pTextEdit_Left.setFont(QFont("Courier New", 10))
+        self.pTextEdit_Left.setFont(QFont("Courier New", 12))
         self.pTextEdit_Left.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.pTextEdit_Left.verticalScrollBar().valueChanged.connect(self.syncScroll)
 
         self.pTextEdit_Right = QPlainTextEdit()
         self.pTextEdit_Right.setReadOnly(True)
         self.pTextEdit_Right.setLineWrapMode(QPlainTextEdit.NoWrap)
-        self.pTextEdit_Right.setFont(QFont("Courier New", 10))
+        self.pTextEdit_Right.setFont(QFont("Courier New", 12))
         self.pTextEdit_Right.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.pTextEdit_Right.verticalScrollBar().valueChanged.connect(self.syncScroll)
 
