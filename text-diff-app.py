@@ -4,6 +4,13 @@ from PyQt5.QtGui import QTextCursor, QColor, QTextCharFormat, QFont
 from PyQt5.QtCore import Qt
 from difflib import Differ
 
+class PlainTextPasteEdit(QTextEdit):
+    def insertFromMimeData(self, source):
+        if source.hasText():
+            self.insertPlainText(source.text())
+        else:
+            super().insertFromMimeData(source)
+
 class TextDiffApp(QWidget):
     def __init__(self):
         super().__init__()
@@ -22,11 +29,11 @@ class TextDiffApp(QWidget):
 
     def initUI_Tab1(self):
         # Input Tab
-        self.textEdit_Up = QTextEdit()
+        self.textEdit_Up = PlainTextPasteEdit()
         self.textEdit_Up.setPlaceholderText("Enter first text here...")
         self.textEdit_Up.setStyleSheet("font-size: 16px;")
 
-        self.textEdit_Down = QTextEdit()
+        self.textEdit_Down = PlainTextPasteEdit()
         self.textEdit_Down.setPlaceholderText("Enter second text here...")
         self.textEdit_Down.setStyleSheet("font-size: 16px;")
 
