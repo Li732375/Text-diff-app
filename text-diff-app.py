@@ -62,14 +62,14 @@ class TextDiffApp(QWidget):
         self.pTextEdit_Left = QPlainTextEdit()
         self.pTextEdit_Left.setReadOnly(True)
         self.pTextEdit_Left.setLineWrapMode(QPlainTextEdit.NoWrap)
-        self.pTextEdit_Left.setFont(QFont("Courier New", 12))
+        self.pTextEdit_Left.setFont(QFont("Courier New", 11))
         self.pTextEdit_Left.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.pTextEdit_Left.verticalScrollBar().valueChanged.connect(self.syncScroll)
 
         self.pTextEdit_Right = QPlainTextEdit()
         self.pTextEdit_Right.setReadOnly(True)
         self.pTextEdit_Right.setLineWrapMode(QPlainTextEdit.NoWrap)
-        self.pTextEdit_Right.setFont(QFont("Courier New", 12))
+        self.pTextEdit_Right.setFont(QFont("Courier New", 11))
         self.pTextEdit_Right.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.pTextEdit_Right.verticalScrollBar().valueChanged.connect(self.syncScroll)
 
